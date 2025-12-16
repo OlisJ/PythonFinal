@@ -1,11 +1,9 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional
 
 class GradeBase(BaseModel):
     student_id: int
-    class_id: int
     score: float
-    feedback: Optional[str] = None
 
 
 class GradeCreate(GradeBase):

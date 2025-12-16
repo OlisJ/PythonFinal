@@ -14,7 +14,7 @@ def get_students():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT id, name, email, age, enrolled_classes FROM students")
+    cursor.execute("SELECT id, name, email, age FROM students")
     students = cursor.fetchall()
     conn.close()
 
@@ -24,9 +24,6 @@ def get_students():
             "name": student[1],
             "email": student[2],
             "age": student[3],
-            "enrolled_classes": (
-                [int(x) for x in student[4].split(',')] if student[4] else []
-            )
         }
         for student in students
     ]
@@ -38,13 +35,10 @@ def create_student(student: StudentCreate, _: str = Depends(get_api_key)):
     cursor = conn.cursor()
 
     try:
-        # Convert list to comma-separated string
-        enrolled_classes = ",".join(str(cid) for cid in student.enrolled_classes)
-
         cursor.execute(
-            "INSERT INTO students (name, email, age, enrolled_classes) "
-            "VALUES (?, ?, ?, ?)",
-            (student.name, student.email, student.age, enrolled_classes),
+            "INSERT INTO students (name, email, age) "
+            "VALUES (?, ?, ?)",
+            (student.name, student.email, student.age),
         )
 
         conn.commit()
@@ -67,12 +61,10 @@ def update_student(student_id: int, student: StudentCreate, _: str = Depends(get
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    enrolled_classes = ",".join(str(cid) for cid in student.enrolled_classes)
-
     cursor.execute(
-        "UPDATE students SET name = ?, email = ?, age = ?, enrolled_classes = ? "
+        "UPDATE students SET name = ?, email = ?, age = ? "
         "WHERE id = ?",
-        (student.name, student.email, student.age, enrolled_classes, student_id),
+        (student.name, student.email, student.age, student_id),
     )
 
     if cursor.rowcount == 0:

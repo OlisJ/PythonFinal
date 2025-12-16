@@ -1,13 +1,12 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional
 
 
 
 class StudentBase(BaseModel):
     name: str
     email: str
-    age: Optional[int] = None
-    enrolled_classes: List[int] = []   
+    age: Optional[int] = None   
 
 
 
@@ -21,4 +20,5 @@ class StudentResponse(StudentBase):
 
 
 class Student(StudentBase):
+    id: int
     id: int

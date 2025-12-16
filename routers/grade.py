@@ -18,7 +18,7 @@ def get_grades():
     cursor = conn.cursor()
 
     cursor.execute(
-        "SELECT id, student_id, class_id, score, feedback FROM grades"
+        "SELECT id, student_id, score FROM grades"
     )
     grades = cursor.fetchall()
     conn.close()
@@ -27,9 +27,7 @@ def get_grades():
         {
             "id": grade[0],
             "student_id": grade[1],
-            "class_id": grade[2],
-            "score": grade[3],
-            "feedback": grade[4]
+            "score": grade[2]
         }
         for grade in grades
     ]
@@ -45,9 +43,9 @@ def create_grade(grade: GradeCreate, _: str = Depends(get_api_key)):
 
     try:
         cursor.execute(
-            "INSERT INTO grades (student_id, class_id, score, feedback) "
-            "VALUES (?, ?, ?, ?)",
-            (grade.student_id, grade.class_id, grade.score, grade.feedback),
+            "INSERT INTO grades (student_id, score) "
+            "VALUES (?, ?)",
+            (grade.student_id, grade.score),
         )
 
         conn.commit()
@@ -58,7 +56,7 @@ def create_grade(grade: GradeCreate, _: str = Depends(get_api_key)):
         conn.close()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid student_id or class_id"
+            detail="Invalid student_id"
         )
 
     finally:
@@ -74,9 +72,9 @@ def update_grade(grade_id: int, grade: GradeCreate, _: str = Depends(get_api_key
     cursor = conn.cursor()
 
     cursor.execute(
-        "UPDATE grades SET student_id = ?, class_id = ?, score = ?, feedback = ? "
+        "UPDATE grades SET student_id = ?, score = ? "
         "WHERE id = ?",
-        (grade.student_id, grade.class_id, grade.score, grade.feedback, grade_id),
+        (grade.student_id, grade.score, grade_id),
     )
 
     if cursor.rowcount == 0:
